@@ -1,3 +1,6 @@
+import { createGlobalStyle } from 'styled-components'
+
+const GlobalStyles = createGlobalStyle`
 html,
 body {
   padding: 0;
@@ -14,3 +17,9 @@ a {
 * {
   box-sizing: border-box;
 }
+
+img{
+  width:100%
+}
+`
+export default GlobalStyles
