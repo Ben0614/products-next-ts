@@ -143,7 +143,7 @@ function ProductsListSearch({ data, params, keyWord, setKeyWord }: Props) {
                 return (
                   <Product key={product.sid}>
                     <Pic>
-                      <img src={product.image}></img>
+                      <img src={product.images2}></img>
                     </Pic>
                     <Link href={`/${+params.page}/${product.sid}`}>
                       <a>{product.Name}</a>

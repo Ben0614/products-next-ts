@@ -6,7 +6,7 @@ import { Product, Pic } from '../../../styles/page/[sid].style'
 
 interface ProductCardProps {
   product: {
-    data: { image: string; Name: string; price: number }
+    data: { image: string; images2: string; Name: string; price: number }
     success: boolean
   }
   params: {
@@ -23,7 +23,7 @@ function ProductDetail({ product, params }: ProductCardProps) {
     <>
       <Product>
         <Pic>
-          <img src={product.data.image}></img>
+          <img src={product.data.images2}></img>
         </Pic>
         <h3>{product.data.Name}</h3>
         <p>${product.data.price}</p>

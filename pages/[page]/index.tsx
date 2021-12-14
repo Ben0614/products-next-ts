@@ -144,7 +144,7 @@ function ProductsList({ data, params, keyWord, setKeyWord }: Props) {
                 return (
                   <Product key={product.sid}>
                     <Pic>
-                      <img src={product.image} />
+                      <img src={product.images2} />
                     </Pic>
                     <Link href={`/${+params.page}/${product.sid}`}>
                       <a>{product.Name}</a>
