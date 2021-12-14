@@ -13,7 +13,7 @@ import {
   ProductList,
   Product,
   Pic,
-} from './[page].style'
+} from '../../styles/page/[page].style'
 
 interface Props {
   data: {

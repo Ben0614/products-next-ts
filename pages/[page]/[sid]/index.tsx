@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { GetStaticProps } from 'next'
 import { GetStaticPaths } from 'next'
 import { ParsedUrlQuery } from 'querystring'
-import { Product, Pic } from './[sid].style'
+import { Product, Pic } from '../../../styles/page/[sid].style'
 
 interface ProductCardProps {
   product: {
