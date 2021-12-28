@@ -3,14 +3,27 @@ import axios, { AxiosRequestConfig } from 'axios'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
 import {
+  Main,
+  LeftAside,
+  Category,
+  List,
+  Item,
+  Pic,
+  Name,
+  Price,
+  BrowserRecode,
+  BrowserRecodeTitle,
   NumberButton,
   PrevNextButton,
   ButtonWrap,
   SearchWrap,
 } from '../../../styles/page/prodListStyle'
+import { Container } from '../../../components/Container'
 
+// props類型
 interface Props {
   params: {
     slug: Array<string>
@@ -42,6 +55,7 @@ interface Props {
     ]
   }
 }
+// prod類型
 interface Prod {
   EXP: string
   Edible_Method: string
@@ -60,6 +74,7 @@ interface Prod {
   sid: number
   special_offer: string
 }
+// 瀏覽紀錄的商品v類型
 interface V {
   EXP: string
   Edible_Method: string
@@ -78,21 +93,50 @@ interface V {
   sid: number
   special_offer: string
 }
+// redux state類型
+interface BrowserRecodeState {
+  browserRecode: {
+    myBrowserRecode: [
+      {
+        EXP: string
+        Edible_Method: string
+        Location: string
+        MFD: string
+        Name: string
+        brand_company: string
+        categories: string
+        create_at: string
+        image: string
+        images2: string
+        nutrient: string
+        place_origin: string
+        price: number
+        quantity: string
+        sid: number
+        special_offer: string
+      }
+    ]
+    updateBrowserRecode: Function
+  }
+}
+
 const category = ['保健食品', '生活用品', '醫療器材']
 
 function Prodlist({ params, data }: Props) {
-  const [myBrowserRecode, setMyBrowserRecode] = useState([])
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   // console.log(params)
-  console.log(data)
+  // console.log(data)
 
+  // 添加商品瀏覽紀錄函式
   const updateBrowserRecode = (prod: Prod) => {
     let myRecode = JSON.parse(localStorage.getItem('recode') || '[]')
+    // 查詢此商品是否有在瀏覽紀錄裡
     let index = myRecode.findIndex((v: V) => {
       return v.sid === prod.sid
     })
 
+    // > -1 代表有 先移除再重新添加 否則就直接添加
     if (index > -1) {
       myRecode = myRecode.filter((v: V) => {
         return v.sid !== prod.sid
@@ -102,6 +146,7 @@ function Prodlist({ params, data }: Props) {
       myRecode.push(prod)
     }
 
+    // 瀏覽紀錄最多4筆 超過就刪除最舊的
     if (myRecode.length > 4) {
       myRecode = myRecode.filter((v: V, i: number) => {
         return i !== 0
@@ -111,28 +156,38 @@ function Prodlist({ params, data }: Props) {
       localStorage.setItem('recode', JSON.stringify(myRecode))
     }
 
-    setMyBrowserRecode(myRecode)
+    // 將狀態存到redux
+    getBrowseRecordFromLocalStorage()
   }
 
+  // 寄送狀態
   const dispatch = useDispatch()
-  dispatch({
-    type: 'browser_recode',
-    payload: {
-      myBrowserRecode,
-      setMyBrowserRecode,
-      updateBrowserRecode,
-    },
+  // 接收狀態
+  const browserRecodeState = useSelector((state: BrowserRecodeState) => {
+    return state
   })
 
+  // console.log(browserRecodeState.browserRecode.myBrowserRecode)
+
+  // 獲取localstorage瀏覽紀錄並寄到redux
   const getBrowseRecordFromLocalStorage = () => {
     const newBrowseRecord = localStorage.getItem('recode') || '[]'
-    setMyBrowserRecode(JSON.parse(newBrowseRecord))
+
+    dispatch({
+      type: 'browser_recode',
+      payload: {
+        myBrowserRecode: JSON.parse(newBrowseRecord),
+        updateBrowserRecode,
+      },
+    })
   }
 
   useEffect(() => {
+    // 頁面一掛載完就調用
     getBrowseRecordFromLocalStorage()
   }, [])
 
+  // 上下按鈕該到哪個頁面的判斷函式
   const prevPage = (firstWord: string) => {
     switch (firstWord) {
       case 'page':
@@ -175,15 +230,7 @@ function Prodlist({ params, data }: Props) {
   if (!data) return ''
   return (
     <>
-      <div
-        className="container"
-        style={{
-          width: '1140px',
-          maxWidth: '100%',
-          margin: '0 auto',
-          padding: '0 15px',
-        }}
-      >
+      <Container>
         <SearchWrap>
           <input
             ref={inputRef}
@@ -341,30 +388,14 @@ function Prodlist({ params, data }: Props) {
           </PrevNextButton>
         </ButtonWrap>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-          className="main"
-        >
-          <div
-            style={{
-              width: 'calc(10% - 5px)',
-            }}
-          >
-            <ul style={{ padding: '10px' }}>
-              <p
-                style={{
-                  fontSize: '18px',
-                  marginBottom: '10px',
-                  fontWeight: 'bold',
-                }}
-              >
-                商品類別
-              </p>
+        <Main>
+          <LeftAside>
+            <Category>
+              <p>商品類別</p>
               <li style={{ fontSize: '18px', marginBottom: '10px' }}>
-                <Link href={`/prodList/page/1`}>全部商品</Link>
+                <Link href={`/prodList/page/1`}>
+                  <a>全部商品</a>
+                </Link>
               </li>
               {category.map((v, i) => {
                 return (
@@ -372,80 +403,45 @@ function Prodlist({ params, data }: Props) {
                     style={{ fontSize: '18px', marginBottom: '10px' }}
                     key={i}
                   >
-                    <Link href={`/prodList/category/${v}/page/1`}>{v}</Link>
+                    <Link href={`/prodList/category/${v}/page/1`}>
+                      <a>{v}</a>
+                    </Link>
                   </li>
                 )
               })}
-            </ul>
-          </div>
-          <div
-            className="list"
-            style={{
-              width: 'calc(75% - 5px)',
-              display: 'flex',
-              flexWrap: 'wrap',
-            }}
-          >
+            </Category>
+          </LeftAside>
+          <List>
             {data.rows.map((prod) => {
               return (
-                <div
-                  style={{
-                    width: 'calc(25% - 10px)',
-                    padding: '10px',
-                    margin: '5px',
-                    border: '1px solid #ccc',
-                    borderRadius: '10px',
-                  }}
-                  key={prod.sid}
-                >
-                  <div style={{ width: '50%', margin: '0 auto' }}>
+                <Item key={prod.sid}>
+                  <Pic>
                     <img src={prod.image} alt="" />
-                  </div>
+                  </Pic>
                   <Link href={`/prodDetail/${prod.sid}`}>
                     <a>
-                      <h3
-                        style={{
-                          textAlign: 'center',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
+                      <Name
                         onClick={() => {
                           updateBrowserRecode(prod)
                         }}
                       >
                         {prod.Name}
-                      </h3>
+                      </Name>
                     </a>
                   </Link>
-                  <p
-                    style={{
-                      color: prod.special_offer ? 'red' : 'black',
-                      textAlign: 'center',
-                    }}
+                  <Price
+                    isSpecial_offer={prod.special_offer === '' ? false : true}
                   >
                     ${prod.special_offer ? prod.special_offer : prod.price}
-                  </p>
-                </div>
+                  </Price>
+                </Item>
               )
             })}
-          </div>
-          <div
-            style={{
-              width: 'calc(15% - 5px)',
-            }}
-          >
-            <p
-              style={{
-                margin: '0 0 5px',
-                fontSize: '24px',
-                textAlign: 'center',
-              }}
-            >
-              <strong>瀏覽紀錄</strong>
-            </p>
-            {myBrowserRecode
-              ? myBrowserRecode
+          </List>
+          <BrowserRecode>
+            <BrowserRecodeTitle>瀏覽紀錄</BrowserRecodeTitle>
+            {browserRecodeState.browserRecode.myBrowserRecode
+              ? browserRecodeState.browserRecode.myBrowserRecode
                   .slice(0)
                   .reverse()
                   .map((prod: Prod, i) => {
@@ -454,9 +450,6 @@ function Prodlist({ params, data }: Props) {
                         <Link href={`/prodDetail/${prod.sid}`}>
                           <a>
                             <h4
-                              style={{
-                                textAlign: 'center',
-                              }}
                               onClick={() => {
                                 updateBrowserRecode(prod)
                               }}
@@ -469,9 +462,9 @@ function Prodlist({ params, data }: Props) {
                     )
                   })
               : ''}
-          </div>
-        </div>
-      </div>
+          </BrowserRecode>
+        </Main>
+      </Container>
     </>
   )
 }

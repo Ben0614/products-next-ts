@@ -4,6 +4,17 @@ import Link from 'next/link'
 import { GetStaticProps } from 'next'
 import { GetStaticPaths } from 'next'
 import { useSelector } from 'react-redux'
+import {
+  ReturnLink,
+  BrowserRecode,
+  BrowserRecodeTitle,
+  BrowserRecodeName,
+  Item,
+  ItemPic,
+  ItemName,
+  ItemPrice,
+} from '../../../styles/page/prodLDetailStyle'
+import { Container } from '../../../components/Container'
 
 interface Props {
   prod: {
@@ -55,73 +66,64 @@ interface BrowserRecodeState {
 }
 
 function Sid({ prod }: Props) {
+  // 瀏覽紀錄的渲染 因為用的資料是prodList的狀態 在detail裡面到其他detail無法立即重新渲染
   // console.log(prod.data)
   const browserRecodeState = useSelector((state: BrowserRecodeState) => {
     return state
   })
 
-  console.log(
-    'sid browserRecode',
-    browserRecodeState.browserRecode.updateBrowserRecode
-  )
+  // console.log(
+  //   'sid browserRecode',
+  //   browserRecodeState.browserRecode.updateBrowserRecode
+  // )
+
   if (!prod) return ''
   return (
     <>
-      <div style={{ width: '70%', margin: '100px auto' }}>
-        <div style={{ width: '20%', margin: 'auto' }}>
-          <img style={{ width: '100%' }} src={prod.data.image} alt="" />
-        </div>
-        <h3 style={{ textAlign: 'center' }}>{prod.data.Name}</h3>
-        <p
-          style={{
-            textAlign: 'center',
-            color: prod.data.special_offer === '' ? 'black' : 'red',
-          }}
-        >
-          $
-          {prod.data.special_offer === ''
-            ? prod.data.price
-            : prod.data.special_offer}
-        </p>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginTop: '20px',
-        }}
-      >
-        <p style={{ margin: '0 0 5px', fontSize: '16px', textAlign: 'center' }}>
-          <strong>瀏覽紀錄</strong>
-        </p>
-        {browserRecodeState.browserRecode.myBrowserRecode
-          .slice(0)
-          .reverse()
-          .map((prod, i) => {
-            return (
-              <div key={prod.sid}>
-                <Link href={`/prodDetail/${prod.sid}`}>
-                  <a>
-                    <h4
-                      style={{
-                        textAlign: 'center',
-                        margin: '10px 0',
-                      }}
-                      onClick={() => {
-                        browserRecodeState.browserRecode.updateBrowserRecode(
-                          prod
-                        )
-                      }}
-                    >
-                      {i + 1}. {prod.Name}
-                    </h4>
-                  </a>
-                </Link>
-              </div>
-            )
-          })}
-      </div>
+      <Container>
+        <Item>
+          <ItemPic>
+            <img src={prod.data.image} alt="" />
+          </ItemPic>
+          <ItemName>{prod.data.Name}</ItemName>
+          <ItemPrice
+            isSpecial_offer={prod.data.special_offer === '' ? false : true}
+          >
+            $
+            {prod.data.special_offer === ''
+              ? prod.data.price
+              : prod.data.special_offer}
+          </ItemPrice>
+        </Item>
+        <BrowserRecode>
+          <BrowserRecodeTitle>瀏覽紀錄</BrowserRecodeTitle>
+          {browserRecodeState.browserRecode.myBrowserRecode
+            .slice(0)
+            .reverse()
+            .map((prod, i) => {
+              return (
+                <div key={prod.sid}>
+                  <Link href={`/prodDetail/${prod.sid}`}>
+                    <a>
+                      <BrowserRecodeName
+                        onClick={() => {
+                          browserRecodeState.browserRecode.updateBrowserRecode(
+                            prod
+                          )
+                        }}
+                      >
+                        {i + 1}. {prod.Name}
+                      </BrowserRecodeName>
+                    </a>
+                  </Link>
+                </div>
+              )
+            })}
+        </BrowserRecode>
+        <ReturnLink href="/prodList/page/1">
+          <a>返回商品列表頁</a>
+        </ReturnLink>
+      </Container>
     </>
   )
 }
