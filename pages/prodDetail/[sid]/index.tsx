@@ -66,7 +66,6 @@ interface BrowserRecodeState {
 }
 
 function Sid({ prod }: Props) {
-  // 瀏覽紀錄的渲染 因為用的資料是prodList的狀態 在detail裡面到其他detail無法立即重新渲染
   // console.log(prod.data)
   const browserRecodeState = useSelector((state: BrowserRecodeState) => {
     return state
