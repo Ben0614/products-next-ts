@@ -1,22 +1,20 @@
-import GlobalStyle from '../styles/Globals'
-import { ThemeProvider } from 'styled-components'
-import { useState } from 'react'
-import { AppProps } from 'next/app'
-
-const theme = {
-  colors: {
-    header: 'blue',
-  },
-  lg: '992px',
-}
+import type { AppProps } from 'next/app'
+import GlobalStyles from '../styles/Globals'
+import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/lib/integration/react'
+import { persistor } from './store'
+import store from './store'
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const [keyWord, setKeyWord] = useState<string>('')
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <Component {...pageProps} keyWord={keyWord} setKeyWord={setKeyWord} />
-    </ThemeProvider>
+    <>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <GlobalStyles />
+          <Component {...pageProps} />
+        </PersistGate>
+      </Provider>
+    </>
   )
 }
 
